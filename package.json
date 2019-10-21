@@ -8,11 +8,23 @@
 		"vscode": "^1.39.0"
 	},
 	"icon": "images/reset.png",
-  "galleryBanner": {
-    "color": "#4bc4d6",
-    "theme": "dark"
-  },
+	"galleryBanner": {
+		"color": "#4bc4d6",
+		"theme": "dark"
+	},
+	"license": "SEE LICENSE IN LICENSE.txt",
+	"homepage": "https://github.com/danishsarwar99/reverse-search/blob/master/README.md",
+	"bugs": {
+		"url": "https://github.com/danishsarwar99/reverse-search/issues",
+		"email": "danysarwar@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/danishsarwar99/reverse-search/"
+	},
 	"categories": [
+		"Programming Languages",
+		"Snippets",
 		"Other"
 	],
 	"activationEvents": [
