@@ -1,8 +1,6 @@
 # reverse-search README
 
-This is the README for your extension "reverse-search".
-Reverse Search functionality is to search files that do not contain specific string in them. In visual studio code we can search
-for files where specific string exists but there are no such options for Reverse Search.
+Reverse Search functionality is to search files that do not contain specific string in them. In visual studio code we can search for files where specific string exists but there are no such options for Reverse Search.
 We can use this extension for multiple purposes. i.e checking which files do not contain commenting license text.
 String to be searched in Reverse Search doesn't have any limit on characters, for now.
 
