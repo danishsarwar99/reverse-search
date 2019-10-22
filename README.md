@@ -16,6 +16,7 @@ String to be searched in Reverse Search doesn't have any limit on characters, fo
 ## Usage guide 
 
 - ctrl + shift + p (for mac cmb + shift + p) to open command palette.
+- Enter command 'Reverse Search'.
 - Enter string in command input that you wish to Reverse Search and hit Enter.
 - Output tab will open up with the list of files that don't include your string.
 
