@@ -38,7 +38,7 @@ function activate(context) {
 						let docText = res.getText().replace(/[-[\]{}()*+?.\\^$|#\s]/g, '');
 						let searchString = quickPick.value.replace(/[-[\]{}()*+?.\\^$|#\s]/g, '');
 						if (docText.search(`${searchString}`) < 0) {
-							reverseSearchOutPut.appendLine(elm.path.substr(1));
+							reverseSearchOutPut.appendLine(elm.path);
 							return elm.path;
 						}
 						else {
