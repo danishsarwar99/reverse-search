@@ -1,56 +1,84 @@
 {
-	"name": "reverse-search",
-	"displayName": "Reverse Search",
-	"description": "Reverse search show all documents which does not contain the specified string",
-	"publisher": "DanishSarwar",
-	"version": "1.0.0",
-	"engines": {
-		"vscode": "^1.39.0"
-	},
-	"icon": "images/reset.png",
-	"galleryBanner": {
-		"color": "#4bc4d6",
-		"theme": "dark"
-	},
-	"license": "SEE LICENSE IN LICENSE.txt",
-	"homepage": "https://github.com/danishsarwar99/reverse-search/blob/master/README.md",
-	"bugs": {
-		"url": "https://github.com/danishsarwar99/reverse-search/issues",
-		"email": "danysarwar@gmail.com"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/danishsarwar99/reverse-search/"
-	},
-	"categories": [
-		"Programming Languages",
-		"Snippets",
-		"Other"
-	],
-	"activationEvents": [
-		"onCommand:extension.reverseSearch"
-	],
-	"main": "./extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "extension.reverseSearch",
-				"title": "Reverse Search"
-			}
-		]
-	},
-	"scripts": {
-		"test": "node ./test/runTest.js"
-	},
-	"devDependencies": {
-		"@types/glob": "^7.1.1",
-		"@types/mocha": "^5.2.6",
-		"@types/node": "^10.12.21",
-		"@types/vscode": "^1.39.0",
-		"eslint": "^5.13.0",
-		"glob": "^7.1.4",
-		"mocha": "^6.1.4",
-		"typescript": "^3.3.1",
-		"vscode-test": "^1.2.0"
-	}
+    "name": "reverse-search",
+    "displayName": "Reverse Search",
+    "description": "Reverse search show all documents which does not contain the specified string",
+    "publisher": "DanishSarwar",
+    "version": "2.0.0",
+    "engines": {
+        "vscode": "^1.52.0"
+    },
+    "icon": "images/reset.png",
+    "galleryBanner": {
+        "color": "#4bc4d6",
+        "theme": "dark"
+    },
+    "license": "SEE LICENSE IN LICENSE.txt",
+    "homepage": "https://github.com/danishsarwar99/reverse-search/blob/master/README.md",
+    "bugs": {
+        "url": "https://github.com/danishsarwar99/reverse-search/issues",
+        "email": "danysarwar@gmail.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/danishsarwar99/reverse-search/"
+    },
+    "categories": [
+        "Programming Languages",
+        "Snippets",
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:reverseSearch.run"
+    ],
+    "main": "./extension.js",
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "Reverse Search",
+            "properties": {
+                "reverseSearch.rememberLastKeyword": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "remember last search input"
+                },
+                "reverseSearch.lineSeparator": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "default": "------------------------",
+                    "description": "output path lines separator, set to (null) to disable it"
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "reverseSearch.run",
+                "title": "Reverse Search"
+            }
+        ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "group": "fsc@1",
+                    "command": "reverseSearch.run",
+                    "when": "explorerResourceIsFolder"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "test": "node ./test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.1.3",
+        "@types/mocha": "^8.2.0",
+        "@types/node": "^14.14.17",
+        "@types/vscode": "^1.52.0",
+        "eslint": "^7.16.0",
+        "glob": "^7.1.6",
+        "mocha": "^8.2.1",
+        "typescript": "^4.1.3",
+        "vscode-test": "^1.4.1"
+    }
 }
