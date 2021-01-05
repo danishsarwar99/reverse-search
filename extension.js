@@ -1,141 +1,203 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-const vscode = require('vscode');
+const vscode = require('vscode')
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+const PACKAGE_NAME = 'reverseSearch'
+let reverseSearchOutPut
+let searchTerm = null
+let config = {}
+let sep = null
 
 /**
  * @param {vscode.ExtensionContext} context
  */
-function activate(context) {
+async function activate(context) {
+    reverseSearchOutPut = await vscode.window.createOutputChannel('reverse-search')
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "reverse-search" is now active!');
+    // config
+    readConfig()
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('extension.reverseSearch', function () {
-		// The code you place here will be executed every time your command is executed
+    vscode.workspace.onDidChangeConfiguration(async (e) => {
+        if (e.affectsConfiguration(PACKAGE_NAME)) {
+            readConfig()
+        }
+    })
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Enter a string in Command input!');
+    // cmnd
+    context.subscriptions.push(
+        vscode.commands.registerCommand(`${PACKAGE_NAME}.run`, async (e) => {
+            let folderPath     = e?.fsPath || null
+            let filesToInclude = null
+            let filesToExclude = null
 
-		const termPick = createPicker('Enter a String');
-		const includePick = createPicker("Files to Include (Optional)");
-		const excludePick = createPicker("Files to Exclude (Optional)");
+            // because we are searching in workspace by default, so we need to change path
+            // from: /a/b/c/some-folder
+            // to: some-folder/
+            if (folderPath) {
+                folderPath = folderPath.replace(vscode.workspace?.rootPath + '/', '') + '/'
+            }
 
-		termPick.show();
+            const termPick    = await createPicker('Enter a String', config.rememberLastKeyword ? searchTerm : null)
+            const includePick = await createPicker('Files to Include (Optional)', folderPath)
+            const excludePick = await createPicker('Files to Exclude (Optional)')
 
-		let searchTerm = null;
-		let filesToInclude = null;
-		let filesToExclude = null;
-		let excludeAccept = false;
+            // search for
+            termPick.show()
 
-		termPick.onDidAccept(() => {
-			searchTerm = termPick.value;
-			includePick.show();
-		});
+            termPick.onDidAccept(() => {
+                searchTerm = termPick.value
 
-		termPick.onDidHide(()=> {
-			termPick.dispose();
-		});
+                if (searchTerm) {
+                    includePick.show()
+                } else {
+                    includePick.dispose()
+                    excludePick.dispose()
+                }
+            })
 
-		includePick.onDidAccept(()=> {
-			filesToInclude = formatPattern(includePick.value);
-			excludePick.show();
-		});
+            termPick.onDidHide(() => {
+                termPick.dispose()
 
-		includePick.onDidHide(()=>{
-			includePick.dispose();
-			excludePick.show();
-		});
+                if (!searchTerm) {
+                    showMsg('nothing to do!')
+                }
+            })
 
-		excludePick.onDidAccept(()=>{
-			filesToExclude = formatPattern(excludePick.value);
-			excludeAccept = true;
-			reverseSearch(searchTerm,filesToInclude,filesToExclude);
-		});
+            // include path
+            includePick.onDidAccept(() => {
+                filesToInclude = formatPattern(includePick.value)
+                excludePick.show()
+            })
 
-		excludePick.onDidHide(()=>{
-			excludePick.dispose();
-			if(!excludeAccept)
-				reverseSearch(searchTerm,filesToInclude,null);
-		});
+            includePick.onDidHide(() => {
+                includePick.dispose()
+                excludePick.show()
+            })
 
-	});
+            // exclude path
+            excludePick.onDidAccept(() => {
+                filesToExclude = formatPattern(excludePick.value)
+                excludePick.hide()
+            })
 
-	context.subscriptions.push(disposable);
+            excludePick.onDidHide(() => {
+                excludePick.dispose()
+
+                // do your thing
+                return reverseSearch(searchTerm, filesToInclude, filesToExclude)
+            })
+        })
+    )
 }
 
-function createPicker(placeholder){
-	const pick = vscode.window.createQuickPick();
-	pick.placeholder = placeholder;
-	return pick;
+function createPicker(placeholder, val = null) {
+    const pick = vscode.window.createInputBox()
+    pick.placeholder = placeholder
+    pick.value = val
+
+    return pick
 }
 
 /**
  * Formatting the pattern
- * 
- * @param {string} pattern 
+ *
+ * @param {string} pattern
  */
-function formatPattern(pattern){
-	if(pattern.trim()==''){
-		return null;
-	}
+function formatPattern(pattern) {
+    if (!pattern || pattern.trim() == '') {
+        return null
+    }
 
-	if(pattern.endsWith('/')||pattern.startsWith('\\')){
-		return pattern + '**';
-	}
+    if (pattern.endsWith('/') || pattern.startsWith('\\')) {
+        return pattern + '**/*'
+    }
 
-	if(pattern.startsWith('/')||pattern.startsWith('\\')){
-		return pattern.substr(1);
-	}
+    if (pattern.startsWith('/') || pattern.startsWith('\\')) {
+        return pattern.substr(1)
+    }
 
-	return pattern;
+    return pattern
 }
 
 /**
  * Searching through files and displaying the result in output tab
- * 
- * @param {string} searchTerm 
- * @param {string|null} filesToInclude 
- * @param {string|null} filesToExclude 
+ *
+ * @param {string} searchTerm
+ * @param {string|null} filesToInclude
+ * @param {string|null} filesToExclude
  */
-function reverseSearch(searchTerm, filesToInclude=null, filesToExclude=null){
+async function reverseSearch(searchTerm, filesToInclude = null, filesToExclude = null) {
+    // clear old
+    reverseSearchOutPut?.clear()
 
-	const files = vscode.workspace.findFiles( filesToInclude?filesToInclude: '**/*' ,filesToExclude);
+    showMsg('processing...')
+    const files = await vscode.workspace.findFiles( filesToInclude ? filesToInclude : '**/*', filesToExclude)
 
-	files.then(response => {
-		vscode.window.showInformationMessage('processing...');
-		let reverseSearchOutPut = vscode.window.createOutputChannel("reverse-search");
-		reverseSearchOutPut.show();
-		let docArray = response.map((elm, i) => {
-			let doc = vscode.workspace.openTextDocument(vscode.Uri.file(elm.path))
-			doc.then(res => {
-				let docText = res.getText().replace(/[-[\]{}()*+?.\\^$|#\s]/g, '');
-				let searchString = searchTerm.replace(/[-[\]{}()*+?.\\^$|#\s]/g, '');
-				if (docText.search(`${searchString}`) < 0) {
-					reverseSearchOutPut.appendLine(elm.path);
-					return elm.path;
-				}
-				else {
-					return null;
-				}
-			});
-		});
-		vscode.window.showInformationMessage('Search completed! Check "OUTPUT" tab');
-	});
+    reverseSearchOutPut?.show()
+
+    let docs = []
+
+    await Promise.all(
+        files.map(async(elm, i) => {
+            let {path} = elm
+
+            try {
+                docs.push({
+                    doc  : await vscode.workspace.openTextDocument(vscode.Uri.file(path)),
+                    path : path
+                })
+            } catch (error) {
+                return null
+            }
+        })
+    )
+
+    // get correct found files count
+    docs = docs.map(({doc, path}) => {
+        let reg          = new RegExp(/[-[\]{}()*+?.\\^$|#\s]/, 'g')
+        let docText      = doc.getText().replace(reg, '')
+        let searchString = searchTerm.replace(reg, '')
+
+        return docText.search(`${searchString}`) < 0
+            ? path
+            : null
+    }).filter((e) => e)
+
+    // show paths
+    let init = false
+
+    docs.forEach((path) => {
+        if (sep && init) {
+            reverseSearchOutPut.appendLine(sep)
+        }
+
+        init = true
+
+        reverseSearchOutPut.appendLine(path)
+    })
+
+    showMsg(`search completed, found "${docs.length}" file.`)
 }
 
-exports.activate = activate;
+/* Helpers ------------------------------------------------------------------ */
 
-// this method is called when your extension is deactivated
-function deactivate() { }
+async function showMsg(msg) {
+    return vscode.window.showInformationMessage(`Reverse Search: ${msg}`)
+}
+
+async function readConfig() {
+    config = await vscode.workspace.getConfiguration(PACKAGE_NAME)
+
+    sep = config.lineSeparator
+}
+
+/* -------------------------------------------------------------------------- */
+
+exports.activate = activate
+
+function deactivate() {
+    reverseSearchOutPut.dispose()
+}
 
 module.exports = {
-	activate,
-	deactivate
+    activate,
+    deactivate
 }

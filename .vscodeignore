@@ -6,3 +6,7 @@ vsc-extension-quickstart.md
 **/jsconfig.json
 **/*.map
 **/.eslintrc.json
+.history
+.DS_Store
+*.vsix
+*.lock
