@@ -3,7 +3,7 @@
     "displayName": "Reverse Search",
     "description": "Reverse search show all documents which does not contain the specified string",
     "publisher": "DanishSarwar",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "engines": {
         "vscode": "^1.52.0"
     },
@@ -41,13 +41,15 @@
                     "default": true,
                     "description": "remember last search input"
                 },
+                "reverseSearch.maxFileSearch": {
+                    "type": "integer",
+                    "default": 1000,
+                    "description": "max files to search in"
+                },
                 "reverseSearch.lineSeparator": {
-                    "type": [
-                        "string",
-                        "null"
-                    ],
+                    "type": "string",
                     "default": "------------------------",
-                    "description": "output path lines separator, set to (null) to disable it"
+                    "description": "output path lines separator"
                 }
             }
         },
@@ -80,5 +82,8 @@
         "mocha": "^8.2.1",
         "typescript": "^4.1.3",
         "vscode-test": "^1.4.1"
+    },
+    "dependencies": {
+        "find-in": "^0.2.0"
     }
 }

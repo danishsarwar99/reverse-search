@@ -7,17 +7,13 @@ String to be searched in Reverse Search doesn't have any limit on characters, fo
 ## Features
 
 - Find files that does NOT contain string 'X'
+- search is case sensitive by default
 
-## Upcoming features
-
-- Option for selecting case sensitive Reverse Search
-- Option for selectng MATCH WHOLE WORLD for Reverse Search
-
-## Usage guide 
+## Usage guide
 
 - ctrl + shift + p (for mac cmb + shift + p) to open command palette.
 - Enter command 'Reverse Search'.
-- Enter string in command input that you wish to Reverse Search and hit Enter.
+- Enter string/regex in command input that you wish to Reverse Search and hit Enter.
 - Output tab will open up with the list of files that don't include your string.
 
 ## Known Issues
@@ -30,6 +26,4 @@ No issue found for current version
 
 functionality to search a list of files not containing specific string.
 
-
 -----------------------------------------------------------------------------------------------------------
-

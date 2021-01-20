@@ -1,16 +1,17 @@
-const vscode = require('vscode')
+const vscode      = require('vscode')
+const findInFiles = require('find-in')
 
+let reverseSearchOutput
 const PACKAGE_NAME = 'reverseSearch'
-let reverseSearchOutPut
-let searchTerm = null
-let config = {}
-let sep = null
+let searchTerm     = null
+let sep            = null
+let config         = {}
 
 /**
  * @param {vscode.ExtensionContext} context
  */
 async function activate(context) {
-    reverseSearchOutPut = await vscode.window.createOutputChannel('reverse-search')
+    reverseSearchOutput = await vscode.window.createOutputChannel('reverse-search')
 
     // config
     readConfig()
@@ -36,7 +37,7 @@ async function activate(context) {
             }
 
             const termPick    = await createPicker('Enter a String', config.rememberLastKeyword ? searchTerm : null)
-            const includePick = await createPicker('Files to Include (Optional)', folderPath)
+            const includePick = await createPicker('Files to Include (Optional)', folderPath || '**/*')
             const excludePick = await createPicker('Files to Exclude (Optional)')
 
             // search for
@@ -89,9 +90,9 @@ async function activate(context) {
 }
 
 function createPicker(placeholder, val = null) {
-    const pick = vscode.window.createInputBox()
+    const pick       = vscode.window.createInputBox()
     pick.placeholder = placeholder
-    pick.value = val
+    pick.value       = val
 
     return pick
 }
@@ -126,55 +127,45 @@ function formatPattern(pattern) {
  */
 async function reverseSearch(searchTerm, filesToInclude = null, filesToExclude = null) {
     // clear old
-    reverseSearchOutPut?.clear()
+    reverseSearchOutput?.clear()
 
     showMsg('processing...')
-    const files = await vscode.workspace.findFiles( filesToInclude ? filesToInclude : '**/*', filesToExclude)
+    const files = await vscode.workspace.findFiles( filesToInclude, filesToExclude)
 
-    reverseSearchOutPut?.show()
+    reverseSearchOutput?.show()
 
-    let docs = []
+    if (files.length <= config.maxFileSearch) {
+        let list = []
 
-    await Promise.all(
-        files.map(async(elm, i) => {
+        for (const elm of files) {
             let {path} = elm
+            let found  = await findInFiles({
+                path    : path,
+                request : [new RegExp(searchTerm)]
+            })
 
-            try {
-                docs.push({
-                    doc  : await vscode.workspace.openTextDocument(vscode.Uri.file(path)),
-                    path : path
-                })
-            } catch (error) {
-                return null
+            if (!found[0].isFound) {
+                list.push(path)
             }
-        })
-    )
-
-    // get correct found files count
-    docs = docs.map(({doc, path}) => {
-        let reg          = new RegExp(/[-[\]{}()*+?.\\^$|#\s]/, 'g')
-        let docText      = doc.getText().replace(reg, '')
-        let searchString = searchTerm.replace(reg, '')
-
-        return docText.search(`${searchString}`) < 0
-            ? path
-            : null
-    }).filter((e) => e)
-
-    // show paths
-    let init = false
-
-    docs.forEach((path) => {
-        if (sep && init) {
-            reverseSearchOutPut.appendLine(sep)
         }
 
-        init = true
+        // show paths
+        let init = false
 
-        reverseSearchOutPut.appendLine(path)
-    })
+        list.forEach((path) => {
+            if (sep && init) {
+                reverseSearchOutput.appendLine(sep)
+            }
 
-    showMsg(`search completed, found "${docs.length}" file.`)
+            init = true
+
+            reverseSearchOutput.appendLine(path)
+        })
+
+        showMsg(`search completed, found "${list.length}" file.`)
+    } else {
+        showMsg(`search stopped, too many files "${files.length}" file.`)
+    }
 }
 
 /* Helpers ------------------------------------------------------------------ */
@@ -194,7 +185,7 @@ async function readConfig() {
 exports.activate = activate
 
 function deactivate() {
-    reverseSearchOutPut.dispose()
+    reverseSearchOutput.dispose()
 }
 
 module.exports = {
