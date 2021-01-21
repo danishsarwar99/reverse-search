@@ -15,3 +15,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - add an explorer context menu item to easily limit searching in a specific folder.
 - you will now get a report of how many items was found in the final notification.
 - change the command name, so update your keybinding if u have set a one.
+
+## 2.0.1
+
+- add new config `maxFileSearch`
+- searching is now much faster & no longer clutter problems panel
