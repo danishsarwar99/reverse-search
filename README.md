@@ -43,7 +43,7 @@ No issue found for current version
 
 ### 1.0.0
 
-Functionality to search a list of files not containing specific string.
+- Functionality to search a list of files not containing specific string.
 
 ### 2.0.1
 
