@@ -47,12 +47,15 @@ Functionality to search a list of files not containing specific string.
 
 ### 2.0.1
 
-Bugs resolved.
-Regex support.
-User can now include specific files, folder or all files with similar extension to for reverse search.
-User can now exclude specific files, folder or all files with similar extension to for reverse search.
-Line separator for output to improve visibility.
-Remember last searched text.
-Improved instructions.
+- Regex support.
+- User can now include specific files, folder or all files with similar extension to for reverse search.
+- User can now exclude specific files, folder or all files with similar extension to for reverse search.
+- Line separator for output to improve visibility.
+- Remember last searched text.
+
+### 2.0.2
+
+- Bugs resolved.
+- Improved instructions.
 
 ---

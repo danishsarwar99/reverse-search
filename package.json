@@ -3,7 +3,7 @@
     "displayName": "Reverse Search",
     "description": "Reverse search show all documents which do not contain the specified string",
     "publisher": "DanishSarwar",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "engines": {
         "vscode": "^1.52.0"
     },
