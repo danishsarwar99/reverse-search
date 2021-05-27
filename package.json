@@ -1,7 +1,7 @@
 {
     "name": "reverse-search",
     "displayName": "Reverse Search",
-    "description": "Reverse search show all documents which does not contain the specified string",
+    "description": "Reverse search show all documents which do not contain the specified string",
     "publisher": "DanishSarwar",
     "version": "2.0.1",
     "engines": {
@@ -43,7 +43,7 @@
                 },
                 "reverseSearch.maxFileSearch": {
                     "type": "integer",
-                    "default": 1000,
+                    "default": 99999999,
                     "description": "max files to search in"
                 },
                 "reverseSearch.lineSeparator": {
