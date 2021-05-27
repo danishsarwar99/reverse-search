@@ -37,8 +37,8 @@ async function activate(context) {
             }
 
             const termPick    = await createPicker('Enter a String', config.rememberLastKeyword ? searchTerm : null)
-            const includePick = await createPicker('Files to Include (Optional)', folderPath || '**/*')
-            const excludePick = await createPicker('Files to Exclude (Optional)')
+            const includePick = await createPicker('Files to Include (Optional). i.e **/*.{js,scss}')
+            const excludePick = await createPicker('Files to Exclude (Optional). i.e **/node_modules/**')
 
             // search for
             termPick.show()
@@ -131,14 +131,14 @@ async function reverseSearch(searchTerm, filesToInclude = null, filesToExclude =
 
     showMsg('processing...')
     const files = await vscode.workspace.findFiles( filesToInclude, filesToExclude)
-
     reverseSearchOutput?.show()
-
+    
     if (files.length <= config.maxFileSearch) {
         let list = []
-
+        
         for (const elm of files) {
             let {path} = elm
+            path = path.substring(1)
             let found  = await findInFiles({
                 path    : path,
                 request : [new RegExp(searchTerm)]
